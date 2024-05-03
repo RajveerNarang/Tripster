@@ -12,7 +12,7 @@
   <body>
     <h1 class="app_name">Tripster🍹🍸🍷</h1>
     <div id="container" class="light-mode">
-      <div id="toggler">
+      <!-- <div id="toggler">
         <label
           class="toggle-switch"
           onclick="toggleAlcoholic()"
@@ -22,9 +22,9 @@
           <span class="slider"></span>
           <p class="filter-name">Alcoholic</p>
         </label>
-      </div>
+      </div> -->
 
-      <div id="mode-toggle" onclick="toggleMode()">☀️</div>
+      <!-- <div id="mode-toggle" onclick="toggleMode()">☀️</div> -->
 
       <!-- Feeling Tipsy button -->
       <button id="feeling-tipsy-button" onclick="feelingTipsy()">
@@ -56,9 +56,9 @@
       <div id="cocktailDetails"></div>
 
       <!-- Video element -->
-      <video id="cocktailVideo" controls style="display: none">
+      <!-- <video id="cocktailVideo" controls style="display: none">
         Your browser does not support the video tag.
-      </video>
+      </video> -->
       <h1 id="filteredTitle"></h1>
       <div id="cocktailListFiltered"></div>
     </div>
@@ -139,6 +139,7 @@
         cocktailHTML += "</ul>";
 
         cocktailDetailsDiv.innerHTML = cocktailHTML;
+        console.log(cocktail.strVideo);
 
         // Set video source
         var videoSource = cocktail.strVideo;
