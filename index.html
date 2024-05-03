@@ -56,9 +56,7 @@
       <div id="cocktailDetails"></div>
 
       <!-- Video element -->
-      <!-- <video id="cocktailVideo" controls style="display: none">
-        Your browser does not support the video tag.
-      </video> -->
+      <div id="videoContainer"></div>
       <h1 id="filteredTitle"></h1>
       <div id="cocktailListFiltered"></div>
     </div>
@@ -101,8 +99,9 @@
 
       function displayCocktail(data) {
         var cocktailDetailsDiv = document.getElementById("cocktailDetails");
-        var cocktailVideo = document.getElementById("cocktailVideo");
+        var videoContainer = document.getElementById("videoContainer");
         cocktailDetailsDiv.innerHTML = "";
+        videoContainer.innerHTML = "";
 
         if (data.drinks === null) {
           cocktailDetailsDiv.innerHTML =
@@ -144,10 +143,31 @@
         // Set video source
         var videoSource = cocktail.strVideo;
         if (videoSource) {
-          cocktailVideo.src = videoSource;
-          cocktailVideo.style.display = "block";
+          videoContainer.innerHTML = '<div id="player"></div>';
+          var player;
+          function onYouTubeIframeAPIReady() {
+            player = new YT.Player("player", {
+              height: "390",
+              width: "640",
+              videoId: videoSource,
+              events: {
+                onReady: onPlayerReady,
+                onStateChange: onPlayerStateChange,
+              },
+            });
+          }
+
+          function onPlayerReady(event) {
+            event.target.playVideo();
+          }
+
+          function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+              // Do something when video starts playing
+            }
+          }
         } else {
-          cocktailVideo.style.display = "none";
+          videoContainer.innerHTML = "<p>Video not available</p>";
         }
       }
 
