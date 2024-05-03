@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tripster !!! 🍸🍹</title>
+    <link rel="stylesheet" href="cocktails.css" />
+    <!-- <style>
+     
+    </style> -->
+  </head>
+  <body>
+    <h1 class="app_name">Tripster🍹🍸🍷</h1>
+    <div id="container" class="light-mode">
+      <!-- <div id="toggler">
+        <label
+          class="toggle-switch"
+          onclick="toggleAlcoholic()"
+          id="alcoholic-toggle"
+        >
+          <input type="checkbox" />
+          <span class="slider"></span>
+          <p class="filter-name">Alcoholic</p>
+        </label>
+      </div> -->
+
+      <!-- <div id="mode-toggle" onclick="toggleMode()">☀️</div> -->
+
+      <!-- Feeling Tipsy button -->
+      <button id="feeling-tipsy-button" onclick="feelingTipsy()">
+        Feeling Tipsy
+      </button>
+
+      <!-- Alcoholic Toggle Button -->
+      <!-- <button id="alcoholic-toggle" onclick="toggleAlcoholic()">
+        Alcoholic
+      </button> -->
+
+      <h2 class="letter_heading">Search Cocktails by First Letter</h2>
+      <input
+        type="text"
+        id="firstLetter"
+        placeholder="Enter first letter"
+        onkeypress="handleKeyPress(event, 'firstLetter')"
+      />
+      <button onclick="listCocktailsByFirstLetter()">List Cocktails</button>
+      <div id="cocktailList"></div>
+      <h2>Search Cocktail by Name</h2>
+      <input
+        type="text"
+        id="cocktailName"
+        placeholder="Enter cocktail name"
+        onkeypress="handleKeyPress(event, 'cocktailName')"
+      />
+      <button onclick="searchCocktail()">Search</button>
+      <div id="cocktailDetails"></div>
+
+      <!-- Video element -->
+      <!-- <video id="cocktailVideo" controls style="display: none">
+        Your browser does not support the video tag.
+      </video> -->
+      <h1 id="filteredTitle"></h1>
+      <div id="cocktailListFiltered"></div>
+    </div>
+
+    <script>
+      var isAlcoholic = false; // Default to non alcoholic
+
+      function handleKeyPress(event, fieldId) {
+        if (event.keyCode === 13) {
+          // 13 is the Enter key code
+          event.preventDefault(); // Prevent default behavior of Enter key (form submission)
+          if (fieldId === "cocktailName") {
+            searchCocktail(); // Call the searchCocktail function when Enter key is pressed in cocktailName input field
+          } else if (fieldId === "firstLetter") {
+            listCocktailsByFirstLetter(); // Call the listCocktailsByFirstLetter function when Enter key is pressed in firstLetter input field
+          }
+        }
+      }
+
+      function searchCocktail() {
+        var cocktailName = document.getElementById("cocktailName").value;
+        if (cocktailName.trim() === "") {
+          alert("Please enter a cocktail name");
+          return;
+        }
+
+        fetch(
+          "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=" +
+            cocktailName
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            displayCocktail(data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("An error occurred while fetching data");
+          });
+      }
+
+      function displayCocktail(data) {
+        var cocktailDetailsDiv = document.getElementById("cocktailDetails");
+        var cocktailVideo = document.getElementById("cocktailVideo");
+        cocktailDetailsDiv.innerHTML = "";
+
+        if (data.drinks === null) {
+          cocktailDetailsDiv.innerHTML =
+            "<p>No cocktail found with that name</p>";
+          cocktailVideo.style.display = "none";
+          return;
+        }
+
+        var cocktail = data.drinks[0];
+        var cocktailName = cocktail.strDrink;
+        var cocktailInstructions = cocktail.strInstructions;
+        var cocktailIngredients = [];
+
+        for (var i = 1; i <= 15; i++) {
+          var ingredient = cocktail["strIngredient" + i];
+          var measure = cocktail["strMeasure" + i];
+          if (ingredient && measure) {
+            cocktailIngredients.push(measure + " " + ingredient);
+          } else if (ingredient) {
+            cocktailIngredients.push(ingredient);
+          } else {
+            break;
+          }
+        }
+
+        var cocktailHTML = "<h3>" + cocktailName + "</h3>";
+        cocktailHTML +=
+          "<p><strong>Instructions:</strong> " + cocktailInstructions + "</p>";
+        cocktailHTML += "<p><strong>Ingredients:</strong></p>";
+        cocktailHTML += "<ul>";
+        cocktailIngredients.forEach(function (ingredient) {
+          cocktailHTML += "<li>" + ingredient + "</li>";
+        });
+        cocktailHTML += "</ul>";
+
+        cocktailDetailsDiv.innerHTML = cocktailHTML;
+        console.log(cocktail.strVideo);
+
+        // Set video source
+        var videoSource = cocktail.strVideo;
+        if (videoSource) {
+          cocktailVideo.src = videoSource;
+          cocktailVideo.style.display = "block";
+        } else {
+          cocktailVideo.style.display = "none";
+        }
+      }
+
+      function listCocktailsByFirstLetter() {
+        var firstLetter = document
+          .getElementById("firstLetter")
+          .value.toLowerCase();
+        if (!firstLetter.match(/^[a-z]$/)) {
+          alert("Please enter a single letter from a to z");
+          return;
+        }
+
+        fetch(
+          "https://www.thecocktaildb.com/api/json/v1/1/search.php?f=" +
+            firstLetter
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            displayCocktailsByFirstLetter(data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("An error occurred while fetching data");
+          });
+      }
+
+      function displayCocktailsByFirstLetter(data) {
+        var cocktailListDiv = document.getElementById("cocktailList");
+        cocktailListDiv.innerHTML = "";
+
+        if (data.drinks === null) {
+          cocktailListDiv.innerHTML =
+            "<p>No cocktails found with that first letter</p>";
+          return;
+        }
+
+        var cocktails = data.drinks;
+        var cocktailListHTML = "";
+
+        cocktails.forEach(function (cocktail, index) {
+          if (index % 1 === 0) {
+            cocktailListHTML += "<div class='cocktail-row'>";
+          }
+          cocktailListHTML += "<div>" + cocktail.strDrink + "</div>";
+          if ((index + 1) % 1 === 0 || index + 1 === cocktails.length) {
+            cocktailListHTML += "</div>";
+          }
+        });
+
+        cocktailListDiv.innerHTML = cocktailListHTML;
+      }
+
+      function toggleMode() {
+        var container = document.getElementById("container");
+        container.classList.toggle("dark-mode");
+      }
+
+      function feelingTipsy() {
+        fetch("https://www.thecocktaildb.com/api/json/v1/1/random.php")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.drinks === null) {
+              alert("No random cocktail found");
+              return;
+            }
+            displayCocktail(data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("An error occurred while fetching data");
+          });
+      }
+
+      function toggleAlcoholic() {
+        var toggleButton = document.getElementById("alcoholic-toggle");
+        toggleButton.classList.toggle("active");
+        isAlcoholic = true;
+
+        if (isAlcoholic) {
+          filterByAlcoholic("Alcoholic");
+        } else {
+          filterByAlcoholic("Non_Alcoholic");
+        }
+      }
+
+      function filterByAlcoholic(type) {
+        fetch(
+          "https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=" + type
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.drinks === null) {
+              alert("No cocktails found for this type");
+              return;
+            }
+            displayFilteredCocktails(data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("An error occurred while fetching data");
+          });
+      }
+
+      function displayFilteredCocktails(data) {
+        var cocktailListDiv = document.getElementById("cocktailListFiltered");
+        cocktailListDiv.innerHTML = "";
+
+        var cocktails = data.drinks;
+        var cocktailListHTML = "";
+
+        cocktails.forEach(function (cocktail) {
+          cocktailListHTML += "<div>" + cocktail.strDrink + "</div>";
+        });
+
+        cocktailListDiv.innerHTML = cocktailListHTML;
+        var filteredTitle = document.getElementById("filteredTitle");
+        filteredTitle.innerText = isAlcoholic
+          ? "Alcoholic Drinks"
+          : "Non-Alcoholic Drinks";
+      }
+    </script>
+  </body>
+</html>
